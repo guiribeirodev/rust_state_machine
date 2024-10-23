@@ -1,6 +1,7 @@
 use balances::Pallet;
 
 mod balances;
+mod system;
 
 fn main() {
     let mut pallet = Pallet::new();
