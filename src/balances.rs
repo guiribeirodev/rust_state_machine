@@ -9,7 +9,7 @@ impl Pallet {
         Pallet { balances: BTreeMap::new() }
     }
 
-    pub fn set_balance(&mut self, who: String, amount: u128) {
+    pub fn set_balance(&mut self, who: &String, amount: u128) {
         self.balances.insert(who.clone(), amount);
     }
 
@@ -48,7 +48,7 @@ mod tests {
     
         assert_eq!(balances.balance(&"alice".to_string()), 0);
     
-        balances.set_balance("alice".to_string(), 100);
+        balances.set_balance(&"alice".to_string(), 100);
         assert_eq!(balances.balance(&"alice".to_string()), 100);
     
         assert_eq!(balances.balance(&"bob".to_string()), 0);
@@ -64,7 +64,7 @@ mod tests {
             Err("Insufficient balance")
         );
 
-        balances.set_balance("daniel".to_string(), 10);
+        balances.set_balance(&"daniel".to_string(), 10);
         assert_eq!(
             balances.transfer("daniel".to_string(), "vini".to_string(), 3),
             Ok(())
@@ -72,7 +72,7 @@ mod tests {
         assert_eq!(balances.balance(&"daniel".to_string()), 7);
         assert_eq!(balances.balance(&"vini".to_string()), 3);
 
-        balances.set_balance("vini".to_string(), u128::MAX);
+        balances.set_balance(&"vini".to_string(), u128::MAX);
         assert_eq!(
             balances.transfer("daniel".to_string(), "vini".to_string(), 3),
             Err("Overflow")
