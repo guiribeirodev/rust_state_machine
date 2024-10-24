@@ -1,15 +1,20 @@
-use balances::Pallet;
-
 mod balances;
 mod system;
 
+pub struct Runtime {
+    balances: balances::Pallet,
+    system: system::Pallet
+}
+
+impl Runtime {
+    pub fn new() -> Self {
+        Runtime {
+            balances: balances::Pallet::new(),
+            system: system::Pallet::new()
+        }
+    }
+}
+
 fn main() {
-    let mut pallet = Pallet::new();
-    pallet.set_balance("daniel".to_string(), 2);
-
-    let balance = pallet.balance(&"daniel".to_string());
-
-    println!("Balance: {balance}");
-    
-    println!("Hello, world!");
+    println!("Hello blockchain")
 }
