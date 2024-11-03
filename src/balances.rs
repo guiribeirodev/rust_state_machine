@@ -47,11 +47,9 @@ where
 mod tests {
     use std::u128;
 
-    use super::Pallet;
-
     #[test]
     fn init_balances() {
-        let mut balances = super::Pallet::new();
+        let mut balances = super::Pallet::<String, u128>::new();
     
         assert_eq!(balances.balance(&"alice".to_string()), 0);
     
@@ -64,7 +62,7 @@ mod tests {
     #[test]
 
     fn transfer_balance() {
-        let mut balances = Pallet::new();
+        let mut balances = super::Pallet::<String, u128>::new();
 
         assert_eq!(
             balances.transfer("daniel".to_string(), "vini".to_string(), 10),
