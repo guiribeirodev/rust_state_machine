@@ -1,8 +1,7 @@
 use std::collections::BTreeMap;
 use num::traits::{CheckedAdd, CheckedSub, Zero};
 
-pub trait Config {
-    type AccountId: Ord + Clone;
+pub trait Config: crate::system::Config {
     type Balance: CheckedAdd+ CheckedSub + Zero + Copy;
 }
 
@@ -29,7 +28,7 @@ impl <T:Config> Pallet <T> {
         caller: T::AccountId,
         to: T::AccountId,
         amount: T::Balance,
-    ) -> Result<(), &'static str>{
+    ) -> crate::support::DispatchResult {
         let caller_balance = self.balance(&caller);
         let to_balance = self.balance(&to);
 
@@ -50,9 +49,16 @@ mod tests {
     struct TestConfig;
 
     impl  super::Config for TestConfig{
-        type AccountId = String;
         type Balance = u128;
     }
+
+    impl crate::system::Config for TestConfig {
+        type AccountId = String;
+        type BlockNumber = u32;
+        type Nonce = u32;
+    }
+
+
 
     #[test]
     fn init_balances() {
