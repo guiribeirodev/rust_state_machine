@@ -1,3 +1,5 @@
+use types::AccountId;
+
 mod balances;
 mod support;
 mod system;
@@ -7,7 +9,15 @@ mod types {
     pub type AccountId = String;
     pub type BlockNumber = u64;
     pub type Nonce = u32;
+
+    
+    pub type Extrinsic = crate::support::Extrinsic<AccountId, crate::RuntimeCall>;
+    pub type Header = crate::support::Header<BlockNumber>;
+    pub type Block =  crate::support::Block<Header, Extrinsic>;
 }
+
+pub enum RuntimeCall {}
+
 
 #[derive(Debug)]
 pub struct Runtime {
@@ -20,6 +30,7 @@ impl system::Config for Runtime {
     type BlockNumber = types::BlockNumber;
     type Nonce = types::Nonce;
 }
+
 
 impl balances::Config for Runtime {
     type Balance = types::Balance;
