@@ -1,5 +1,3 @@
-use types::AccountId;
-
 mod balances;
 mod support;
 mod system;
@@ -20,7 +18,12 @@ mod types {
 }
 
 
-pub enum RuntimeCall {}
+pub enum RuntimeCall {
+    BalancesTransfer {
+        to: types::AccountId,
+        amount: types::Balance
+    }
+}
 
 
 #[derive(Debug)]
@@ -79,7 +82,11 @@ impl crate::support::Dispatch for Runtime {
         caller: Self::Caller,
         runtime_call: Self::Call,
     ) -> support::DispatchResult {
-        unimplemented!();
+        match runtime_call {
+            RuntimeCall::BalancesTransfer { to, amount } => {
+                self.balances.transfer(caller, to, amount)
+            }
+        }
     }
 }
 
@@ -88,22 +95,22 @@ fn main() {
 
     let alice = "alice".to_string();
     let bob = "bob".to_string();
-    let charlie = "charlie".to_string();
+    // let charlie = "charlie".to_string();
 
     runtime.balances.set_balance(&alice, 100);
 
-    runtime.system.inc_block_number();
-    assert!(runtime.system.block_number() == 1);
+    let block_1 = types::Block {
+        header: support::Header { block_number: 1 },
+        extrinsics: vec![
+            support::Extrinsic {
+                caller: alice,
+                call: RuntimeCall::BalancesTransfer { to: bob, amount: 69 },
+            },
+        ],
+    };
 
-    runtime.system.inc_nonce(&alice);
-    let _res = runtime.balances
-        .transfer(alice.clone(), bob.clone(), 30)
-        .map_err(|e|println!("{}", e));
+    runtime.execute_block(block_1).expect("invalid block");
 
-    runtime.system.inc_nonce(&alice);
-    let _res = runtime.balances
-        .transfer(alice.clone(), charlie.clone(), 20)
-        .map_err(|e|println!("{}", e));
 
     println!("{:#?}", runtime);
 }
