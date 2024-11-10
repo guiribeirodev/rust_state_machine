@@ -5,35 +5,9 @@ pub trait Config: crate::system::Config {
     type Balance: CheckedAdd+ CheckedSub + Zero + Copy;
 }
 
-pub enum Call<T: Config> {
-    Transfer {to: T::AccountId, value: T::Balance}
-}
-
 #[derive(Debug)]
 pub struct Pallet <T: Config> {
     balances: BTreeMap<T::AccountId, T::Balance>
-}
-
-impl <T:Config> crate::support::Dispatch for Pallet<T> {
-    type Caller = T::AccountId;
-    type Call = Call<T>;
-
-    // Despacha uma chamada em nome de um chamador. Aumenta o nonce do chamador.
-    //
-    // Dispatch nos permite identificar qual chamada de módulo subjacente queremos executar.
-    // Observe que extraímos o `chamador` do extrínseco e usamos essa informação
-    // para determinar em nome de quem estamos executando a chamada.
-    fn dispatch(
-        &mut self,
-        caller: Self::Caller,
-        call: Self::Call,
-    ) -> crate::support::DispatchResult {
-        match call {
-            Call::Transfer { to, value } => {
-                self.transfer(caller, to, value)
-            }
-        }
-    }
 }
 
 impl <T:Config> Pallet <T> {
@@ -48,7 +22,11 @@ impl <T:Config> Pallet <T> {
     pub fn balance(&self, who: &T::AccountId) -> T::Balance {
         *self.balances.get(who).unwrap_or(&T::Balance::zero())
     }
+}
+    
 
+#[macros::call]
+impl <T: Config> Pallet<T> {
     pub fn transfer(
         &mut self,
         caller: T::AccountId,
@@ -67,6 +45,8 @@ impl <T:Config> Pallet <T> {
         Ok(())
     }
 }
+
+
 #[cfg(test)]
 
 mod tests {
