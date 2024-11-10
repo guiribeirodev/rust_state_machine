@@ -125,7 +125,7 @@ fn main() {
             },
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::ProofOfExistence(CreateClaim { claim: "Hello Blockchain!".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Hello Blockchain!".to_string() }),
             },
         ],
     };
@@ -137,15 +137,15 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::ProofOfExistence(CreateClaim { claim: "Document Car Chevrolet".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Document Car Chevrolet".to_string() }),
             },
             support::Extrinsic {
                 caller: bob.clone(),
-                call: RuntimeCall::ProofOfExistence(CreateClaim { claim: "Document Car Chevrolet".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Document Car Chevrolet".to_string() }),
             },
             support::Extrinsic {
                 caller: alice,
-                call: RuntimeCall::ProofOfExistence(CreateClaim { claim: "Hello Blockchain!".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Hello Blockchain!".to_string() }),
             },
         ],
     };
