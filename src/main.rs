@@ -5,7 +5,6 @@ mod system;
 
 use crate::support::Dispatch;
 
-
 mod types {
     pub type Balance = u128;
     pub type AccountId = String;
@@ -14,17 +13,15 @@ mod types {
 
     pub type Extrinsic = crate::support::Extrinsic<AccountId, crate::RuntimeCall>;
     pub type Header = crate::support::Header<BlockNumber>;
-    pub type Block =  crate::support::Block<Header, Extrinsic>;
+    pub type Block = crate::support::Block<Header, Extrinsic>;
 
     pub type Content = String;
 }
 
-
 pub enum RuntimeCall {
-	Balances(balances::Call<Runtime>),
+    Balances(balances::Call<Runtime>),
     ProofOfExistence(proof_of_existence::Call<Runtime>),
 }
-
 
 #[derive(Debug)]
 pub struct Runtime {
@@ -38,7 +35,6 @@ impl system::Config for Runtime {
     type BlockNumber = types::BlockNumber;
     type Nonce = types::Nonce;
 }
-
 
 impl balances::Config for Runtime {
     type Balance = types::Balance;
@@ -64,10 +60,13 @@ impl Runtime {
             return Err("Block number mismatch");
         }
 
-        for (i, support::Extrinsic {caller, call}) in block.extrinsics.into_iter().enumerate() {
+        for (i, support::Extrinsic { caller, call }) in block.extrinsics.into_iter().enumerate() {
             self.system.inc_nonce(&caller);
             let _res = self.dispatch(caller, call).map_err(|e| {
-                format!("Error in block {}: extrinsic {}: {}", block.header.block_number, i, e)
+                format!(
+                    "Error in block {}: extrinsic {}: {}",
+                    block.header.block_number, i, e
+                )
             });
         }
         Ok(())
@@ -91,7 +90,7 @@ impl crate::support::Dispatch for Runtime {
         match runtime_call {
             RuntimeCall::Balances(call) => {
                 self.balances.dispatch(caller, call)?;
-            },
+            }
             RuntimeCall::ProofOfExistence(call) => {
                 self.proof_of_existence.dispatch(caller, call)?;
             }
@@ -117,15 +116,23 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::Balances(transfer { to: bob.clone(), amount: 30 }),
+                call: RuntimeCall::Balances(transfer {
+                    to: bob.clone(),
+                    amount: 30,
+                }),
             },
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::Balances(transfer { to: charlie, amount: 20 }),
+                call: RuntimeCall::Balances(transfer {
+                    to: charlie,
+                    amount: 20,
+                }),
             },
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Hello Blockchain!".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim {
+                    claim: "Hello Blockchain!".to_string(),
+                }),
             },
         ],
     };
@@ -137,21 +144,26 @@ fn main() {
         extrinsics: vec![
             support::Extrinsic {
                 caller: alice.clone(),
-                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Document Car Chevrolet".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim {
+                    claim: "Document Car Chevrolet".to_string(),
+                }),
             },
             support::Extrinsic {
                 caller: bob.clone(),
-                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Document Car Chevrolet".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim {
+                    claim: "Document Car Chevrolet".to_string(),
+                }),
             },
             support::Extrinsic {
                 caller: alice,
-                call: RuntimeCall::ProofOfExistence(create_claim { claim: "Hello Blockchain!".to_string() }),
+                call: RuntimeCall::ProofOfExistence(create_claim {
+                    claim: "Hello Blockchain!".to_string(),
+                }),
             },
         ],
     };
 
     runtime.execute_block(block_2).expect("invalid block");
-
 
     println!("{:#?}", runtime);
 }

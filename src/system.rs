@@ -1,5 +1,5 @@
+use num::traits::{One, Zero};
 use std::collections::BTreeMap;
-use num::traits::{Zero, One};
 
 pub trait Config {
     type AccountId: Ord + Clone;
@@ -11,14 +11,14 @@ pub trait Config {
 
 pub struct Pallet<T: Config> {
     block_number: T::BlockNumber,
-    nonce: BTreeMap<T::AccountId, T::Nonce>
+    nonce: BTreeMap<T::AccountId, T::Nonce>,
 }
 
-impl <T: Config> Pallet <T> {
+impl<T: Config> Pallet<T> {
     pub fn new() -> Self {
         Pallet {
             block_number: T::BlockNumber::zero(),
-            nonce: BTreeMap::new()
+            nonce: BTreeMap::new(),
         }
     }
 
@@ -26,11 +26,11 @@ impl <T: Config> Pallet <T> {
         self.block_number
     }
 
-    pub fn inc_block_number (&mut self) {
+    pub fn inc_block_number(&mut self) {
         self.block_number = self.block_number + T::BlockNumber::one();
     }
 
-    pub fn inc_nonce(&mut self, who: &T::AccountId){
+    pub fn inc_nonce(&mut self, who: &T::AccountId) {
         let nonce = *self.nonce.get(who).unwrap_or(&T::Nonce::zero()) + T::Nonce::one();
         self.nonce.insert(who.clone(), nonce);
     }
@@ -43,7 +43,7 @@ mod test {
     use super::Pallet;
     struct TestConfig;
 
-    impl  super::Config for TestConfig{
+    impl super::Config for TestConfig {
         type AccountId = String;
         type BlockNumber = u32;
         type Nonce = u32;
@@ -60,14 +60,14 @@ mod test {
         system.inc_block_number();
 
         assert_eq!(system.block_number(), 1);
-        
+
         system.inc_nonce(&"daniel".to_string());
         assert_eq!(system.nonce.get(&"daniel".to_string()).unwrap(), &1);
     }
 
     #[test]
 
-    fn increment_block_number(){
+    fn increment_block_number() {
         let mut system = Pallet::<TestConfig>::new();
 
         assert_eq!(system.block_number(), 0);
