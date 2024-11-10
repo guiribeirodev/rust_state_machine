@@ -12,22 +12,25 @@ mod types {
     pub type BlockNumber = u64;
     pub type Nonce = u32;
 
-    
     pub type Extrinsic = crate::support::Extrinsic<AccountId, crate::RuntimeCall>;
     pub type Header = crate::support::Header<BlockNumber>;
     pub type Block =  crate::support::Block<Header, Extrinsic>;
+
+    pub type Content = String;
 }
 
 
 pub enum RuntimeCall {
 	Balances(balances::Call<Runtime>),
+    ProofOfExistence(proof_of_existence::Call<Runtime>),
 }
 
 
 #[derive(Debug)]
 pub struct Runtime {
     balances: balances::Pallet<Self>,
-    system: system::Pallet<Self>
+    system: system::Pallet<Self>,
+    proof_of_existence: proof_of_existence::Pallet<Self>,
 }
 
 impl system::Config for Runtime {
@@ -41,11 +44,16 @@ impl balances::Config for Runtime {
     type Balance = types::Balance;
 }
 
+impl proof_of_existence::Config for Runtime {
+    type Content = types::Content;
+}
+
 impl Runtime {
     pub fn new() -> Self {
         Runtime {
             balances: balances::Pallet::new(),
-            system: system::Pallet::new()
+            system: system::Pallet::new(),
+            proof_of_existence: proof_of_existence::Pallet::new(),
         }
     }
 
@@ -82,15 +90,19 @@ impl crate::support::Dispatch for Runtime {
     ) -> support::DispatchResult {
         match runtime_call {
             RuntimeCall::Balances(call) => {
-                self.balances.dispatch(caller, call)
+                self.balances.dispatch(caller, call)?;
             },
-        
+            RuntimeCall::ProofOfExistence(call) => {
+                self.proof_of_existence.dispatch(caller, call)?;
+            }
         }
+        Ok(())
     }
 }
 
 fn main() {
     use balances::Call::*;
+    use proof_of_existence::Call::*;
 
     let mut runtime = Runtime::new();
 
@@ -108,8 +120,12 @@ fn main() {
                 call: RuntimeCall::Balances(Transfer { to: bob, value: 30 }),
             },
             support::Extrinsic {
-                caller: alice,
+                caller: alice.clone(),
                 call: RuntimeCall::Balances(Transfer { to: charlie, value: 20 }),
+            },
+            support::Extrinsic {
+                caller: alice,
+                call: RuntimeCall::ProofOfExistence(CreateClaim { claim: "Hello Blockchain!".to_string() }),
             },
         ],
     };

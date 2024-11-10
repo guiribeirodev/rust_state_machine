@@ -18,6 +18,32 @@ pub struct Pallet<T: Config> {
 	claims: BTreeMap<T::Content, T::AccountId>,
 }
 
+pub enum Call<T: Config> {
+	CreateClaim{claim: T::Content},
+	RevokeClaim{claim: T::Content},
+}
+
+impl <T:Config> crate::support::Dispatch for Pallet<T> {
+    type Caller = T::AccountId;
+    type Call = Call<T>;
+
+
+    fn dispatch(
+        &mut self,
+        caller: Self::Caller,
+        call: Self::Call,
+    ) -> crate::support::DispatchResult {
+        match call {
+            Call::CreateClaim { claim } => {
+                self.create_claim(caller, claim)?;
+            },
+			Call::RevokeClaim { claim } => {
+				self.revoke_claim(caller, claim)?;
+        }
+    }
+	Ok(())
+}}
+
 impl<T: Config> Pallet<T> {
 	/// Cria uma nova instância do Módulo de Prova de Existência.
 	pub fn new() -> Self {
@@ -33,8 +59,6 @@ impl<T: Config> Pallet<T> {
 	/// Cria uma nova reivindicação em nome do `caller`.
 	/// Esta função retornará um erro se alguém já tiver reivindicado esse conteúdo.
 	pub fn create_claim(&mut self, caller: T::AccountId, claim: T::Content) -> DispatchResult {
-		/* TODO: Verifique se uma `claim` não existe. Se existir, retorne um erro. */
-		/* TODO: `insert` a reivindicação em nome do `caller`. */
 		if self.claims.contains_key(&claim) {
 			return Err("This claim already exists");
 		}
