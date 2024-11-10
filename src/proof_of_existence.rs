@@ -52,7 +52,6 @@ impl<T: Config> Pallet<T> {
 
 	/// Obtém o proprietário (se houver) de uma reivindicação.
 	pub fn get_claim(&self, claim: &T::Content) -> Option<&T::AccountId> {
-		/* TODO: `get` o `claim` */
 		self.claims.get(claim)
 	}
 
